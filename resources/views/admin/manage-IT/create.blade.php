@@ -12,7 +12,7 @@
                             <h3 class="card-title text-center mb-4">{{ __('messages.staff.register_title') }}</h3>
                             <form class="forms-sample" action="{{ route('user.store') }}" method="POST"
                                 enctype="multipart/form-data" style="width: 80%; margin: 0 auto;">
-                                @csrf
+                                @csrf 
                                 <div class="mb-3">
                                     <label for="name" class="form-label">{{ __('messages.staff.form.name') }}</label>
                                     <input type="text" class="form-control" id="name" name="name"
