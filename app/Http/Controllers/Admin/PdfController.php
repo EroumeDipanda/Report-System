@@ -89,7 +89,7 @@ class PdfController extends Controller
         }
 
         // Get the subject for the PDF view
-        // $subject = $marks->first()->subject;
+        $subject = $marks->first()->subject;
 
         // Define paths to logos
         $logoPath = public_path('assets/images/logo.jpg');
@@ -100,6 +100,46 @@ class PdfController extends Controller
 
         return $pdf->stream('marks.pdf');
     }
+
+    // public function downloadMarksPdf(Request $request)
+    // {
+    //     $classeId = $request->input('id');
+    //     $sequence = $request->input('sequence');
+    //     $subjectId = $request->input('subject_id'); // Get the subject ID from request
+
+    //     // Retrieve the class
+    //     $classe = Classe::find($classeId);
+    //     if (!$classe) {
+    //         return response()->json(['error' => 'Class not found'], 404);
+    //     }
+
+    //     // Retrieve marks based on the subject, sequence, and class
+    //     $marks = Mark::where('subject_id', $subjectId)
+    //         ->where('sequence', $sequence)
+    //         ->whereHas('student', function ($query) use ($classeId) {
+    //             $query->where('classe_id', $classeId);
+    //         })
+    //         ->with(['student', 'subject'])
+    //         ->get();
+
+    //     // Check if marks exist
+    //     if ($marks->isEmpty()) {
+    //         return response()->json(['error' => 'No marks found for this class, subject, and sequence.'], 404);
+    //     }
+
+    //     // Get the subject for the PDF view
+    //     $subject = $marks->first()->subject;
+
+    //     // Define paths to logos
+    //     $logoPath = public_path('assets/images/logo.jpg');
+
+    //     // Generate PDF
+    //     $pdf = Pdf::loadView('pdf.marks', compact('marks', 'classe', 'sequence', 'subject', 'logoPath'))
+    //               ->setPaper('A4', 'portrait');
+
+    //     return $pdf->stream('marks.pdf');
+    // }
+
 
 
 

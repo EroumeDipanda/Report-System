@@ -19,37 +19,77 @@ class MarkController extends Controller
     /**
      * Display a listing of the resource.
      */
-    // public function index()
+    // public function index(Request $request)
     // {
-    //     // Select only relevant columns and group by subject_id and sequence
-    //     $marks = Mark::select('subject_id', 'sequence', 'classe_id')
-    //                  ->with('classe')  // Eager load the related classe
-    //                  ->groupBy('subject_id', 'sequence', 'classe_id') // Group by subject, sequence, and class
-    //                  ->orderBy('sequence')
-    //                  ->get();
+    //     $query = Mark::latest()
+    //                  ->select('subject_id', 'sequence', 'classe_id', 'created_at') // Include created_at
+    //                  ->with('classe','subject')
+    //                  ->groupBy('subject_id', 'sequence', 'classe_id', 'created_at') // Group by created_at as well
+    //                  ->orderBy('sequence');
 
-    //     return view('marks.index', compact('marks'));
+    //     if ($request->filled('class_id')) {
+    //         $query->where('classe_id', $request->class_id);
+    //     }
+
+    //     if ($request->filled('sequence')) {
+    //         $query->where('sequence', $request->sequence);
+    //     }
+
+    //     // Get distinct marks and paginate
+    //     $marks = $query->distinct()->paginate(13);
+    //     $classes = Classe::all();
+
+    //     // Add filled status to marks
+    //     foreach ($marks as $mark) {
+    //         $mark->filled = $mark->created_at !== null; // Add filled property
+    //     }
+
+    //     return view('marks.index', compact('marks', 'classes'));
     // }
 
     public function index(Request $request)
     {
-        $query = Mark::latest()->select('subject_id', 'sequence', 'classe_id')
-                         ->with('classe')->groupBy('subject_id', 'sequence', 'classe_id')->orderBy('sequence');
-
-        if ($request->filled('class_id')) {
-            $query->where('classe_id', $request->class_id);
-        }
-
-        if ($request->filled('sequence')) {
-            $query->where('sequence', $request->sequence);
-        }
-
-        // Get distinct marks and paginate
-        $marks = $query->distinct()->paginate(13);
         $classes = Classe::all();
+        $classeId = $request->filled('class_id') ? $request->class_id : null;
+
+        // Get all subjects for the selected class
+        $subjects = Subject::where('classe_id', $classeId)->get();
+
+        // Initialize marks array
+        $marks = [];
+
+        foreach ($subjects as $subject) {
+            // Check if marks exist for this subject and class
+            $mark = Mark::where('subject_id', $subject->id)
+                         ->where('classe_id', $classeId)
+                         ->when($request->filled('sequence'), function ($query) use ($request) {
+                             return $query->where('sequence', $request->sequence);
+                         })
+                         ->first();
+
+            // Determine filled status
+            $filled = $mark && $mark->created_at !== null;
+
+            $classe = Classe::find($request->class_id);
+
+            $marks[] = [
+                'classe' => $classe, // Get the actual Classe object
+                'subject' => $subject,
+                'filled' => $filled,
+                'mark' => $mark,
+                'sequence' => $request->sequence,
+            ];
+
+
+        }
 
         return view('marks.index', compact('marks', 'classes'));
     }
+
+
+
+
+
 
 
 

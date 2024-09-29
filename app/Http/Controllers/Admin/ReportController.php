@@ -222,7 +222,7 @@ class ReportController extends Controller
             return 'C'; // Below Average
         } elseif ($termAverage <= 10) {
             return 'D'; // Poor
-        } 
+        }
     }
 
 

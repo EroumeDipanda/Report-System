@@ -190,7 +190,7 @@
                         </td>
                         <td colspan="2"><strong>STUDENT NAME: </strong>&nbsp;{{ strtoupper($student->first_name) }} {{ strtoupper($student->last_name) }}</td>
                         <td><strong>CLASSE: </strong>&nbsp;&nbsp;{{ $classe->name }}</td>
-                        <td><strong>ENROLLMENT: </strong>&nbsp; {{ $classe->students->count() }}</td>
+                        <td><strong>ENROLLMENT: </strong>&nbsp; {{ $classe->students ? $classe->students->count() : 'NULL'  }}</td>
                     </tr>
                     <tr>
                         <td colspan="2"><strong>DATE OF BIRTH:</strong>&nbsp;{{ $student->date_of_birth }}</td>

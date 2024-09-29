@@ -44,13 +44,14 @@
             </form>
 
             <div class="table-responsive">
-                <table class="table table-striped text-center">
+                {{-- <table class="table table-striped text-center">
                     <thead class="table-primary">
                         <tr>
                             <th>No</th>
                             <th>Class</th>
                             <th>Subject</th>
                             <th>Evaluation</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -61,6 +62,7 @@
                                 <td>{{ $mark->classe ? $mark->classe->name : 'N/A' }}</td>
                                 <td>{{ $mark->subject->name }}</td>
                                 <td>{{ $mark->sequence }}</td>
+                                <td></td>
                                 <td>
                                     <a href="{{ route('marks.view', ['classe_id' => $mark->classe_id, 'subject_id' => $mark->subject_id, 'sequence' => $mark->sequence]) }}"
                                        class="btn btn-info btn-sm">View</a>
@@ -79,11 +81,63 @@
                             </tr>
                         @endforelse
                     </tbody>
+                </table> --}}
+                <table class="table table-striped text-center">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>No</th>
+                            <th>Class</th>
+                            <th>Subject</th>
+                            <th>Evaluation</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($marks as $mark)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $mark['classe'] ? $mark['classe']->name : 'N/A' }}</td>
+                                <td>{{ $mark['subject']->name }}</td>
+                                <td>{{ $mark['sequence'] }}</td>
+                                <td>
+                                    @if($mark['filled'])
+                                        <span class="text-success">✔️</span> <!-- Green check -->
+                                    @else
+                                        <span class="text-danger">❌</span> <!-- Red cross -->
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($mark['mark'])
+                                        <a href="{{ route('marks.view', ['classe_id' => $mark['classe']->id, 'subject_id' => $mark['subject']->id, 'sequence' => $mark['sequence']]) }}" class="btn btn-info btn-sm">View</a>
+                                    @else
+                                        <span class="text-muted">No mark available</span>
+                                    @endif
+
+                                    @if($mark['mark'])
+                                        <form action="{{ route('marks.delete', ['classe_id' => $mark['classe']->id, 'subject_id' => $mark['subject']->id, 'sequence' => $mark['sequence']]) }}" method="POST" class="d-inline" onsubmit="return confirmDelete();">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    @endif
+                                </td>
+
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-danger">
+                                    <strong>No Marks Found</strong>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
                 </table>
+
             </div>
 
             <div class="mt-3">
-                {{ $marks->links('pagination::bootstrap-4') }}
+                {{-- {{ $marks->links('pagination::bootstrap-4') }} --}}
             </div>
         </div>
     </div>
