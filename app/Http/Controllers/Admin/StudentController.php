@@ -111,8 +111,11 @@ class StudentController extends Controller
         // Update the student with the validated data
         $student->update($validated);
 
+        $studentName = $student->first_name.' '.$student->last_name;
+        $studentClass = $student->classe->name;
+
         // Redirect back with a success message
-        return redirect()->route('students.index')->with('success', 'Student updated successfully!');
+        return redirect()->back()->with('success', 'Modification sur l\'eleve '.$studentName.' en classe de '.$studentClass);
     }
 
     public function downloadPDF($classId)

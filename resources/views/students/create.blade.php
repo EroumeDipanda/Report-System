@@ -9,6 +9,21 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-4">CREATE NEW STUDENT</h4>
+                        <!-- Processing Indicator -->
+                        <div id="processing-indicator" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                            background: rgba(235, 232, 232, 0.8); text-align: center; justify-content: center; align-items: center;
+                            z-index: 9999; font-size: 1.5rem;">
+
+                            <div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+                                height: 100%;">
+
+                                <i class="mdi mdi-loading mdi-50px mdi-spin" style="font-size: 5rem; color: #007bff;"></i>
+
+                                <p style="font-size: 2rem; font-weight: bold; margin-top: 10px; color: #333;">Saving...</p>
+
+                            </div>
+                        </div>
+
                         <form action="{{ route('students.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row mb-3">
@@ -74,7 +89,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-fw p-2 btn-success">Register Student</button>
+                            <button type="submit" class="btn btn-fw p-2 btn-success" onclick="showProcessing()">Register Student</button>
                         </form>
                     </div>
                 </div>
@@ -133,6 +148,18 @@
         document.getElementById('classe_id').addEventListener('change', generateMatricule);
         document.getElementById('first_name').addEventListener('input', generateMatricule);
         document.getElementById('last_name').addEventListener('input', generateMatricule);
+    </script>
+
+    {{--  --}}
+    <script>
+        function showProcessing() {
+            document.getElementById('processing-indicator').style.display = 'flex';
+        }
+
+        // Ensure the indicator is hidden by default
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('processing-indicator').style.display = 'none';
+        });
     </script>
 
 @endsection
