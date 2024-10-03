@@ -22,12 +22,10 @@ class ArrayExport implements FromArray, WithHeadings
     public function headings(): array
     {
         return [
-            'matricule',
-            'name_of_student',
-            'classe_id',
-            'subject_id',
-            'evaluation',
-            'marks',
+            'Matricule',
+            'Name of Student',
+            'Marks',
         ];
     }
 }
+

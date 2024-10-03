@@ -167,9 +167,22 @@
             {{-- Tel: 673 156 416 / 687 694 598 / 695 382 661 --}}
         </h3>
 
-        <h2 style="text-align: center; margin: 20px; font-size: 18px">
-            LISTE DE CLASSE DE {{ $class->name }}
-        </h2>
+        <br>
+        <div>
+            <table class="subject-table" >
+                <thead style="padding: 0">
+                    <tr>
+                        <th colspan="4" style="font-size: 15px">LISTE DE CLASSE</th>
+                    </tr>
+                    <tr>
+                        <th>INFORMATIONS <br> DE LA CLASSE</th>
+                        <td style="padding: 0; text-align:center; font-weight:bold">CLASSE: &nbsp; {{$class->name}}</td>
+                        <td style="padding: 0; text-align:center; font-weight:bold">EFFECTIF: &nbsp; {{$class->students ? $class->students->count() : 0}}</td>
+                        <td style="padding: 0; text-align:center; font-weight:bold"><h4>PROFESSEUR PRINCIPAL: &nbsp; {{ strtoupper($class->classe_master ? $class->classe_master : '')}}</h4></td>
+                    </tr>
+                </thead>
+            </table>
+        </div>
 
         <!-- Marks Table -->
         <div class="info-section">
@@ -181,12 +194,13 @@
                         <th>SEX</th>
                         <th>DATE DE <br> NAISSANCE</th>
                         <th>LIEU DE <br> NAISSANCE</th>
-                        <th>EVAL 1</th>
+                        <th>Contact Parent <br> (Tuteur)</th>
+                        {{-- <th>EVAL 1</th>
                         <th>EVAL 2</th>
                         <th>EVAL 3</th>
                         <th>EVAL 4</th>
                         <th>EVAL 5</th>
-                        <th>EVAL 6</th>
+                        <th>EVAL 6</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -197,25 +211,20 @@
                             <td style="text-align: center">{{ $student->sex == 'male' ? 'M' : 'F'}}</td>
                             <td>{{ $student->date_of_birth}}</td>
                             <td>{{ strtoupper($student->place_of_birth)}}</td>
+                            <td>(+237) {{$student->parents_contact ? $student->parents_contact : '/' }}</td>
+                            {{-- <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td></td>
-                            <td></td>
+                            <td></td> --}}
                         </tr>
 
                     @endforeach
-                    <tr>
-                        <td colspan="8"></td>
-                        <th colspan="3">EFFECTIF: {{$students ? $students->count() : ''}}</th>
-                    </tr>
                 </tbody>
             </table>
         </div>
-        <div style="text-align: right; font-size:12px">
-            <h4>PROFESSEUR PRINCIPAL: {{ strtoupper($class->classe_master ? $class->classe_master : '')}}</h4>
-        </div>
+
 
         <!-- Footer -->
         <footer class="footer">

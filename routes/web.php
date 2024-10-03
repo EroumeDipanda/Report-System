@@ -75,15 +75,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/import/marks', [MarkController::class, 'import'])->name('marks.import');
     Route::post('/store/import/marks', [MarkController::class, 'store_import'])->name('marks.import.store');
     Route::get('/export/marks', [MarkController::class, 'export'])->name('marks.export');
+    Route::get('/marks/download', [MarkController::class, 'downloadMarksPdf'])->name('marks.download');
+
 
     // Routes for repport cards
     Route::get('/generate/reports', [ReportController::class, 'create'])->name('reports.create');
     Route::post('/generate/reports', [ReportController::class, 'store'])->name('reports.store');
     Route::get('/download/{id}/reports', [ReportController::class, 'download'])->name('reports.download');
-
-
-    // Routes for PDF downloads
-    Route::get('/marks/download', [PdfController::class, 'downloadMarksPdf'])->name('marks.download');
 
     // Route to show the form for creating marks
     // Route::get('marks/create', [MarkController::class, 'create'])->name('marks.create');

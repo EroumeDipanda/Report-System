@@ -110,6 +110,7 @@
                                 <td>
                                     @if($mark['mark'])
                                         <a href="{{ route('marks.view', ['classe_id' => $mark['classe']->id, 'subject_id' => $mark['subject']->id, 'sequence' => $mark['sequence']]) }}" class="btn btn-info btn-sm">View</a>
+                                        <a target="_blank" href="{{ route('marks.download', ['classe_id' => $mark['classe']->id, 'subject_id' => $mark['subject']->id, 'sequence' => $mark['sequence']]) }}" class="btn btn-info btn-sm">Download</a>
                                     @else
                                         <span class="text-muted">No mark available</span>
                                     @endif

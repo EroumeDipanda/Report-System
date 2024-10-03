@@ -180,19 +180,33 @@
             {{-- Tel: 673 156 416 / 687 694 598 / 695 382 661 --}}
         </h3>
 
-        <h2 style="text-align: center; margin: 20px; font-size: 18px">
-            MARK SHEET {{ $classe->name }}
-        </h2>
-
+        <br>
         <div>
-            <table class="classe-table" style="width: 100%;">
-                <thead>
+            <table class="subject-table" >
+                <thead style="padding: 0">
                     <tr>
-                        <th style="width: 33%;">SUBJECT: {{ $subject ? $subject->name : '' }}</th>
-                        <th style="width: 33%;">TEACHER: {{ $subject ? $subject->teacher : '' }}</th>
-                        <th style="width: 34%;">EVALUATION NO: {{ $sequence }}</th>
+                        <th colspan="4" style="font-size: 15px; text-align: center;">RELEVE DE NOTES DE {{ $subject ? $subject->name : '' }}</th>
+                    </tr>
+                    <tr>
+                        <th rowspan="2" style="text-align: center;">INFORMATIONS <br> DE LA CLASSE</th>
+                        <td style="padding: 0; text-align:center; font-weight:bold">CLASSE: &nbsp; {{ strtoupper($classe->name) }}</td>
+                        <td style="padding: 0; text-align:center">EVALUATION {{$sequence}}</td>
+                        <td style="padding: 0; text-align:center; font-weight:bold">PROFESSEUR: &nbsp; {{ $subject ? $subject->teacher : '' }}</td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:center; padding: 0;">REUSSITE: &nbsp; {{ $numberPassed }}</td>
+                        <td style="text-align:center; padding: 0;">ECHEC: &nbsp; {{ $numberFailed }}</td>
+                        <td style="text-align:center; padding: 0;">ABSENT: &nbsp; {{ $numberAbsent }}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="4" style="padding: 0; text-align:center; font-weight:bold">
+                            <h4>PROFESSEUR PRINCIPAL: &nbsp; {{ strtoupper($classe->classe_master ? $classe->classe_master : '') }}</h4>
+                        </th>
                     </tr>
                 </thead>
+
             </table>
         </div>
 

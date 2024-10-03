@@ -2,7 +2,7 @@
 
 @section('title', 'Create Mark')
 
-@section('content')
+{{-- @section('content')
     <div class="row">
         <div class="col-lg-12 m-0 stretch-card">
             <div class="card">
@@ -179,4 +179,161 @@
         }
     </script>
 
+@endsection --}}
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-12 m-0 stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <h3 class="card-title">CREATE MARKS</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" action="{{ route('marks.create') }}">
+                        @csrf
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label for="classe_id" class="form-label">Class</label>
+                                <select id="classe_id" name="classe_id" class="form-select" required>
+                                    <option value="">Select a class</option>
+                                    @foreach ($classes as $classe)
+                                        <option value="{{ $classe->id }}"
+                                            {{ request('classe_id') == $classe->id ? 'selected' : '' }}>
+                                            {{ $classe->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="subject_id" class="form-label">Subject</label>
+                                <select id="subject_id" name="subject_id" class="form-select" required>
+                                    <option value="">Select a subject</option>
+                                    @if (!empty($subjects))
+                                        @foreach ($subjects as $subject)
+                                            <option value="{{ $subject->id }}"
+                                                {{ request('subject_id') == $subject->id ? 'selected' : '' }}>
+                                                {{ $subject->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="sequence" class="form-label">Sequence</label>
+                                <select id="sequence" name="sequence" class="form-select" required>
+                                    <option value="">Select Evaluation</option>
+                                    @for ($i = 1; $i <= 6; $i++)
+                                        <option value="{{ $i }}"
+                                            {{ request('sequence') == $i ? 'selected' : '' }}>{{ "Evaluation $i" }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <button type="submit" class="btn btn-primary p-2">Show Students</button>
+                            </div>
+                        </div>
+                    </form>
+
+
+                    @if (request('classe_id') && request('subject_id') && request('sequence'))
+                        <form id="marks-form" method="POST" action="{{ route('marks.store') }}">
+                            @csrf
+                            <div class="col-lg-12 grid-margin stretch-card">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <h4 class="card-title">LIST OF STUDENTS</h4>
+                                            </div>
+                                            <div class="col-md-7 text-end">
+                                                <div id="action-buttons" class="d-inline-flex">
+                                                    <a href="{{ route('marks.export', ['classe_id' => request('classe_id'), 'subject_id' => request('subject_id'), 'sequence' => request('sequence')]) }}" class="btn btn-success p-2 me-2">
+                                                        <i class="fas fa-file-export"></i> Export Marks
+                                                    </a>
+
+                                                    <a href="{{ route('marks.import', ['classe_id' => request('classe_id'), 'subject_id' => request('subject_id'), 'sequence' => request('sequence')]) }}" class="btn btn-info p-2">
+                                                        <i class="fas fa-file-import"></i> Import Marks
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th>Matricule</th>
+                                                        <th>Name</th>
+                                                        <th>Mark</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="students-container">
+                                                    @foreach ($students as $index => $student)
+                                                        <tr>
+                                                            <td>{{ $index + 1 }}</td>
+                                                            <td>{{ $student->matricule }}</td>
+                                                            <td>{{ $student->first_name }} {{ $student->last_name }}</td>
+                                                            <td>
+                                                                <input type="tel" name="marks[{{ $student->id }}]"
+                                                                    class="form-control" style="width: 100px;"
+                                                                    placeholder="Enter mark" required>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3">Save Marks</button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    @else
+                        <div class="alert alert-info text-center">Please select a class, subject, and sequence to see the
+                            students.</div>
+                    @endif
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('classe_id').addEventListener('change', function() {
+            const classId = this.value;
+            const subjectSelect = document.getElementById('subject_id');
+
+            // Clear the subject dropdown
+            subjectSelect.innerHTML = '<option value="">Select a subject</option>';
+
+            if (classId) {
+                // Fetch subjects for the selected class
+                fetch(`/classes/${classId}/subjects`)
+                    .then(response => response.json())
+                    .then(subjects => {
+                        subjects.forEach(subject => {
+                            subjectSelect.innerHTML +=
+                                `<option value="${subject.id}">${subject.name}</option>`;
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching subjects:', error);
+                    });
+            }
+        });
+    </script>
 @endsection
