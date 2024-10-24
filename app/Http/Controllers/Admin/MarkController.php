@@ -142,33 +142,40 @@ class MarkController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-
         // Validate input
         $request->validate([
-            'classe_id' => 'required|exists:classes,id',
-            'subject_id' => 'required|exists:subjects,id',
-            'sequence' => 'required|in:1,2,3,4,5,6',
-            'marks' => 'required|array',
-            'marks.*' => 'required|numeric|min:0|max:100', // Adjust validation as needed
+            'mark' => 'required|array', // Ensure marks is an array
+            'mark.*' => 'required|numeric|min:0|max:20', // Each mark must be a number between 0 and 20
+            'subject_id' => 'required|exists:subjects,id', // Ensure subject_id exists in subjects table
+            'classe_id' => 'required|exists:classes,id', // Ensure classe_id exists in classes table
+            'sequence' => 'required|string|max:255', // Ensure sequence is a non-empty string
         ]);
 
         // Iterate through each student mark
-        foreach ($request->input('marks') as $studentId => $mark) {
+        foreach ($request->input('mark') as $studentId => $mark) {
             // Determine appreciation based on the mark
             if ($mark == 0) {
-                $appreciation ='Absent';
+                $appreciation = 'Absent';
             } elseif ($mark < 10) {
-                $appreciation ='C.N.A'; // Competences Not Acquired (CNA)
+                $appreciation = 'C.N.A'; // Competences Not Acquired (CNA)
             } elseif ($mark >= 10 && $mark < 12) {
-                $appreciation ='C.A.A'; // Competences markly Acquired (CAA)
+                $appreciation = 'C.A.A'; // Competences markly Acquired (CAA)
             } elseif ($mark >= 12 && $mark < 14) {
-                $appreciation ='C.A'; // Competences Acquired (CA)
+                $appreciation = 'C.A'; // Competences Acquired (CA)
             } elseif ($mark >= 14 && $mark < 16) {
-                $appreciation ='C.W.A'; // Competences Well Acquired (CWA)
+                $appreciation = 'C.W.A'; // Competences Well Acquired (CWA)
             } elseif ($mark >= 16 && $mark <= 20) {
-                $appreciation ='C.V.W.A'; // Competences Very Well Acquired (CVWA)
+                $appreciation = 'C.V.W.A'; // Competences Very Well Acquired (CVWA)
             }
+
+            // Fetch the class and subject IDs from the request
+            $classeId = $request->input('classe_id');
+            $subjectId = $request->input('subject_id');
+            $sequence = $request->input('sequence');
+
+            // Initialize variables for success message
+            $classeName = Classe::find($classeId)->name; // Get class name
+            $subjectName = Subject::find($subjectId)->name; // Get subject name
 
             // Store the mark
             Mark::updateOrCreate(
@@ -185,8 +192,13 @@ class MarkController extends Controller
             );
         }
 
-        return redirect()->route('marks.index')->with('success', 'Marks have been saved successfully.');
+        // Create success message
+        $successMessage = "Marks for '$classeName' have been saved successfully in '$subjectName' for Evaluation $sequence.";
+
+
+        return redirect()->route('marks.index')->with('success', $successMessage);
     }
+
 
 
     public function view($classe_id, $subject_id, $sequence)
@@ -747,5 +759,159 @@ class MarkController extends Controller
         return redirect()->route('marks.index')
                          ->with('success', 'Mark deleted successfully');
     }
+
+
+
+    // Master Sheet
+    // public function downloadMasterSheet(Request $request)
+    // {
+    //     $classId = $request->input('class_id');
+    //     $sequence = $request->input('sequence');
+
+    //     // Fetch class and its subjects
+    //     $class = Classe::with('subjects')->find($classId);
+
+    //     // Fetch students in the selected class with their marks
+    //     $students = Student::where('classe_id', $classId)->get();
+
+    //     // Prepare marks for each student
+    //     foreach ($students as $student) {
+    //         // Fetch marks for the selected sequence
+    //         $marks = $student->marks()->where('sequence', $sequence)->get();
+
+    //         // Create an associative array for marks, with subject IDs as keys
+    //         $marksArray = [];
+    //         foreach ($marks as $mark) {
+    //             $marksArray[$mark->subject_id] = $mark->mark;
+    //         }
+
+    //         // Add marks for all subjects, defaulting to 0 where no mark exists
+    //         foreach ($class->subjects as $subject) {
+    //             if (!isset($marksArray[$subject->id])) {
+    //                 $marksArray[$subject->id] = 0; // Default to 0 if no mark exists
+    //             }
+    //         }
+
+    //         // Store the marks array back into the student object
+    //         $student->marksArray = $marksArray; // Add the marks array to the student object
+    //     }
+
+    //     // Generate the PDF
+    //     $pdf = PDF::loadView('pdf.master-sheet', [
+    //         'students' => $students,
+    //         'class' => $class,
+    //         'sequence' => $sequence,
+    //     ])->setPaper('A4', 'landscape');
+
+    //     // Stream the PDF
+    //     return $pdf->stream('master_sheet_class_' . $classId . '_sequence_' . $sequence . '.pdf');
+    // }
+
+    public function downloadMasterSheet(Request $request)
+    {
+        $classId = $request->input('class_id');
+        $sequence = $request->input('sequence');
+        $logoPath = public_path('assets/images/logo.jpg');
+
+        // Fetch class and its subjects
+        $class = Classe::with('subjects')->find($classId);
+
+        // Fetch students in the selected class with their marks
+        $students = Student::where('classe_id', $classId)->get();
+
+        // Initialize counters
+        $numberPassed = 0;
+        $numberAbsent = 0;
+        $numberFailed = 0;
+
+        // Prepare marks for each student
+        foreach ($students as $student) {
+            // Fetch marks for the selected sequence
+            $marks = $student->marks()->where('sequence', $sequence)->get();
+
+            // Create an associative array for marks, with subject IDs as keys
+            $marksArray = [];
+            foreach ($marks as $mark) {
+                $marksArray[$mark->subject_id] = $mark->mark;
+            }
+
+            // Add marks for all subjects, defaulting to 0 where no mark exists
+            foreach ($class->subjects as $subject) {
+                if (!isset($marksArray[$subject->id])) {
+                    $marksArray[$subject->id] = 0; // Default to 0 if no mark exists
+                }
+            }
+
+            // Calculate total and average
+            $total = $this->calculateTotal($marksArray, $class->subjects);
+            $avg = $this->calculateAvg($total, $marksArray, $class->subjects); // Pass marksArray here
+
+            // Store the marks array and calculated values back into the student object
+            $student->marksArray = $marksArray; // Add the marks array to the student object
+            $student->total = $total;            // Add total to the student object
+            $student->average = $avg;            // Add average to the student object
+
+            // Update counters based on the average
+            if ($avg >= 10) {
+                $numberPassed++;
+            } elseif ($avg == 0) {
+                $numberAbsent++;
+            } elseif ($avg > 0 && $avg < 10) {
+                $numberFailed++;
+            }
+        }
+
+        // Generate the PDF
+        $pdf = PDF::loadView('pdf.master-sheet', [
+            'students' => $students,
+            'class' => $class,
+            'sequence' => $sequence,
+            'logoPath' => $logoPath,
+            'numberPassed' => $numberPassed,
+            'numberAbsent' => $numberAbsent,
+            'numberFailed' => $numberFailed,
+        ])->setPaper('A4', 'landscape');
+
+        // Stream the PDF
+        return $pdf->stream('MASTER SHEET ' . $class->name . '_EVALUATION_' . $sequence . '.pdf');
+    }
+
+    private function calculateTotal($marksArray, $subjects)
+    {
+        $total = 0;
+
+        foreach ($subjects as $subject) {
+            // Check if the mark exists for the subject
+            if (isset($marksArray[$subject->id])) {
+                // Multiply mark by coefficient and add to total
+                $total += $marksArray[$subject->id] * $subject->coef;
+            }
+        }
+
+        return $total;
+    }
+
+    private function calculateAvg($total, $marksArray, $subjects)
+    {
+        $sumCoefficients = 0;
+        $count = 0;
+
+        foreach ($subjects as $subject) {
+            // Check if the subject's mark exists and is greater than 0
+            if (isset($marksArray[$subject->id]) && $marksArray[$subject->id] > 0) {
+                $sumCoefficients += $subject->coef;
+                $count++;
+            }
+        }
+
+        // dd($sumCoefficients);
+
+        // Return the average or 0 if no valid marks
+        return $count > 0 ? $total / $sumCoefficients : 0;
+    }
+
+
+
+
 
 }

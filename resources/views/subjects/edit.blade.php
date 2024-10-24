@@ -24,7 +24,7 @@
 
                         <div class="mb-3">
                             <label for="code_subject" class="form-label">Subject Code</label>
-                            <input type="text" class="form-control @error('code_subject') is-invalid @enderror" id="code_subject" name="code_subject" value="{{ old('code_subject', $subject->code_subject) }}" required readonly>
+                            <input type="text" class="form-control @error('code_subject') is-invalid @enderror" id="code_subject" name="code_subject" value="{{ old('code_subject', $subject->code_subject) }}" required>
                             @error('code_subject')
                                 <div class="invalid-feedback">
                                     {{ $message }}

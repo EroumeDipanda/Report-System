@@ -22,4 +22,9 @@ class Student extends Model
     {
         return $this->hasMany(Mark::class);
     }
+
+    public function getMarkForSubject($subjectId)
+    {
+        return $this->marks->firstWhere('subject_id', $subjectId)->mark ?? 0;
+    }
 }

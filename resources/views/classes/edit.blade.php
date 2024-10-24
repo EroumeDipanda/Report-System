@@ -19,7 +19,7 @@
                         <div class="mb-3">
                             <label for="code_classe" class="form-label">Class Code</label>
                             <input type="text" class="form-control" id="code_classe" name="code_classe"
-                                value="{{ old('code_classe', $class->code_classe) }}" required readonly>
+                                value="{{ old('code_classe', $class->code_classe) }}" required>
                         </div>
 
                         <div class="mb-3">

@@ -1,7 +1,7 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
     <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
         <h2 href="#" class="pt-3 mb-0 brand-logo fw-bold text-center">
-            MOBISCHO<small></small>
+            E-SCHOOL<small></small>
         </h2>
     </div>
     <ul class="nav">

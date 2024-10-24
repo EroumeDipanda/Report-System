@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/update/{id}/students', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/delete/{id}/students', [StudentController::class, 'destroy'])->name('students.delete');
     Route::get('download/{classId}/students', [StudentController::class, 'downloadPDF'])->name('students.download');
+    Route::get('/download-id/{classId}/students', [StudentController::class, 'students_id'])->name('students.id');
 
 
     // Routes for Marks
@@ -76,6 +77,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/store/import/marks', [MarkController::class, 'store_import'])->name('marks.import.store');
     Route::get('/export/marks', [MarkController::class, 'export'])->name('marks.export');
     Route::get('/marks/download', [MarkController::class, 'downloadMarksPdf'])->name('marks.download');
+    Route::get('/download-master-sheet', [MarkController::class, 'downloadMasterSheet'])->name('master.sheet.download');
 
 
     // Routes for repport cards

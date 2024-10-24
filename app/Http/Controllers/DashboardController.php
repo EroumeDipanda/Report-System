@@ -28,7 +28,7 @@ class DashboardController extends Controller
         switch ($user->role) {
             case 'user':
                 // Return the teacher's dashboard view with their file counts
-                return view('teachers.dashboard');
+                return view('teachers.dashboard',compact('classCount','studentCount'));
 
             case 'admin':
                 // Return the admin's dashboard view with file counts and school count

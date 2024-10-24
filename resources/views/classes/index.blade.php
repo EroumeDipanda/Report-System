@@ -42,7 +42,14 @@
                                         </td>
                                         <td><a href="{{ route('class.students', $class->id) }}"class="btn btn-success"><i
                                                     class="mdi mdi-account-multiple"></i> Eleves</a></td>
-                                        <td class="text-center">
+
+                                        {{-- <td>
+
+                                            <a href="{{ route('students.id', $class->id) }}"class="btn btn-success"><i
+                                                    class="mdi mdi-file-document-box"></i>Download IDs</a>
+                                        </td> --}}
+
+                                                    <td class="text-center">
                                             <a href="{{ route('classes.edit', $class->id) }}"
                                                 class="btn btn-success">Modifier</a>
                                             <form action="{{ route('classes.delete', $class->id) }}" method="POST"

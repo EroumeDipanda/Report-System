@@ -137,6 +137,48 @@ class StudentController extends Controller
     }
 
 
+    public function students_id($classId)
+    {
+        // Fetch students by class
+        $students = Student::where('classe_id', $classId)->get();
+        $logoPath = public_path('assets/images/logo.jpg');
+        $pdfPaths = []; // Array to hold paths of the generated PDFs
+
+        foreach ($students as $student) {
+            // Generate PDF for each student
+            $pdf = PDF::loadView('pdf.student_id', compact('student', 'logoPath'))->setPaper('A6', 'landscape');
+
+            // Define file name and path
+            $fileName = "student_id_{$student->id}.pdf";
+            $filePath = storage_path("app/public/{$fileName}");
+
+            // Save the PDF to the defined path
+            file_put_contents($filePath, $pdf->output());
+            $pdfPaths[] = $filePath; // Add the path to the array
+        }
+
+        // Create a zip file with the PDFs using ZipArchive
+        $zipFileName = "student_ids_class_{$classId}.zip";
+        $zipFilePath = storage_path("app/public/{$zipFileName}");
+
+        $zip = new \ZipArchive();
+
+        // Open the zip file for creation
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            // Add each PDF file to the zip
+            foreach ($pdfPaths as $pdfPath) {
+                $zip->addFile($pdfPath, basename($pdfPath)); // Add PDF to zip
+            }
+            $zip->close(); // Close the zip file
+        } else {
+            return redirect()->route('classes.index')->with('error', 'Could not create ZIP file.');
+        }
+
+        // Download the zip file
+        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    }
+
+
     /**
      * Remove the specified resource from storage.
      */

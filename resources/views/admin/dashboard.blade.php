@@ -11,7 +11,7 @@
                     <div class="row">
                         <div class="col-9">
                             <div class="d-flex align-items-center align-self-start">
-                                <h6 class="mb-0"> {{$classCount}} &nbsp;CLASSE(s)</h6>
+                                <h6 class="mb-0"> {{$classCount ? $classCount : '0'}} &nbsp;CLASSE(s)</h6>
                                 {{-- <p class="text-success ms-2 mb-0 font-weight-medium">+3.5%</p> --}}
                             </div>
                         </div>

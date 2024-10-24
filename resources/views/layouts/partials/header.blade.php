@@ -24,9 +24,9 @@
                             @if (Auth::user()->school)
                                 {{ Auth::user()->school->name }}
                             @elseif (Auth::user()->role == 'super_admin')
-                                SUPER ADMIN GENS
+                                SUPER ADMINISTRATOR
                             @elseif (Auth::user()->role == 'admin')
-                                ADMIN GENS
+                                ADMINISTRATOR
                             @endif
                         </span>
                     </div>

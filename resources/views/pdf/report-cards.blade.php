@@ -146,6 +146,33 @@
                             RÉPUBLIQUE DU CAMEROUN <br>
                             Paix – Travail – Patrie <br>
                             MINISTÈRE DES ENSEIGNEMENTS SECONDAIRES <br>
+                            DÉLÉGATION RÉGIONALE DU CENTRE <br>
+                            DÉLÉGATION DÉPARTEMENTALE DU MBAM ET INOUBOU <br>
+                            <strong>COLLEGE BILINGUE "LES PAPANETTES"</strong> <br>
+                        </p>
+                    </td>
+                    <td class="header-logo">
+                        <img src="{{ $leftLogoPath }}" alt="SCHOOL LOGO">
+                    </td>
+                    <td>
+                        <p>
+                            REPUBLIC OF CAMEROUN <br>
+                            Peace – Work – Fatherland <br>
+                            MINISTRY OF SECONDARY EDUCATION <br>
+                            REGIONAL DELEGATION OF CENTRE <br>
+                            DIVISIONAL DELEGATION OF MBAM AND INOUBOU <br>
+                            <strong>BILINGUAL COLLEGE "LES PAPANETTES"</strong> <br>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+            {{-- <table class="header-table">
+                <tr>
+                    <td>
+                        <p>
+                            RÉPUBLIQUE DU CAMEROUN <br>
+                            Paix – Travail – Patrie <br>
+                            MINISTÈRE DES ENSEIGNEMENTS SECONDAIRES <br>
                             DÉLÉGATION RÉGIONALE DE … <br>
                             DÉLÉGATION DÉPARTEMENTALE DE … <br>
                             <strong>COLLEGE BILINGUE "LES PAPANETTES"</strong> <br>
@@ -165,7 +192,7 @@
                         </p>
                     </td>
                 </tr>
-            </table>
+            </table> --}}
 
             <!-- Report Title -->
             <h2 style="text-align: center;">
