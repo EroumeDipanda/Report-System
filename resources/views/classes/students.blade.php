@@ -15,7 +15,7 @@
                     </div>
                     <div class="col-md-6 text-end">
 
-                            <a href="{{ route('students.id', $class->id) }}"class="btn btn-success"><i
+                            <a target="_blank" href="{{ route('students.id', $class->id) }}"class="btn btn-success"><i
                                     class="mdi mdi-file-document-box"></i>Download School IDs</a>
                         <a class="btn btn-primary" target="_blank" href="{{ route('students.download', $class->id) }}">
                             <i class="mdi mdi-download"></i> Download Class List

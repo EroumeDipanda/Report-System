@@ -207,8 +207,8 @@
                     <tr>
                         <td rowspan="3" style="text-align: center; vertical-align: middle; padding:1px ; margin:0">
                             @if ($student->photo)
-                                <img src="{{ asset('storage/' . $student->photo) }}" alt="Student Photo"
-                                    style="height: 100px; width: 100px; object-fit: cover;">
+                                <img src="{{ public_path('storage/' . $student->photo) }}" alt="Student Photo"
+                                    style="height: 90px; width: 90px; object-fit: cover;">
                             @else
                             <img src="{{ $profile }}" alt="Default Photo"
                             style="height: 80px; width: 80px; object-fit: contain;">
