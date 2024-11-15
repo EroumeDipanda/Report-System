@@ -113,11 +113,11 @@ class MarkController extends Controller
         $students = collect(); // Initialize an empty collection
 
         if ($request->classe_id) {
-            $subjects = Subject::where('classe_id', $request->classe_id)->get();
+            $subjects = Subject::where('classe_id', $request->classe_id)->orderBy('name')->get();
         }
 
         if ($request->classe_id && $request->subject_id) {
-            $students = Student::where('classe_id', $request->classe_id)->get();
+            $students = Student::where('classe_id', $request->classe_id)->orderBy('first_name')->get();
         }
 
         return view('marks.create', compact('classes', 'subjects', 'students'));
@@ -196,7 +196,7 @@ class MarkController extends Controller
         $successMessage = "Marks for '$classeName' have been saved successfully in '$subjectName' for Evaluation $sequence.";
 
 
-        return redirect()->route('marks.index')->with('success', $successMessage);
+        return back()->with('success', $successMessage);
     }
 
 
@@ -291,7 +291,7 @@ class MarkController extends Controller
         }
 
         // Fetch students in the selected class
-        $students = Student::where('classe_id', $classeId)->get();
+        $students = Student::where('classe_id', $classeId)->orderBy('first_name')->get();
         if ($students->isEmpty()) {
             return back()->with('error', 'No students found for this class.');
         }
@@ -324,11 +324,6 @@ class MarkController extends Controller
     }
 
 
-
-
-
-
-
     public function import(Request $request) {
         // Get parameters from the request
         $classeId = $request->query('classe_id');
@@ -341,172 +336,6 @@ class MarkController extends Controller
     }
 
 
-    // public function store_import(Request $request)
-    // {
-    //     // Validate the request for file upload
-    //     $request->validate([
-    //         'file' => 'required|file|mimes:xlsx,xls,csv',
-    //     ]);
-
-    //     try {
-    //         // Load the Excel file
-    //         $file = $request->file('file');
-    //         $data = Excel::toArray(new MarksImport, $file);
-
-    //         // Fetch all classes and subjects to map IDs to names
-    //         $classes = Classe::all()->pluck('name', 'id')->toArray(); // ID mapped to class names
-    //         $subjects = Subject::all()->pluck('name', 'id')->toArray(); // ID mapped to subject names
-
-    //         // Initialize variables for success message
-    //         $classeNames = [];
-    //         $subjectNames = [];
-    //         $evaluation = '';
-
-    //         // Process the data starting from the second row
-    //         foreach ($data[0] as $index => $row) {
-    //             if ($index === 0) {
-    //                 continue; // Skip the header row
-    //             }
-
-    //             // Validate name
-    //             $name = trim($row[1]);
-    //             if (empty($name) || !preg_match("/^[a-zA-Z\s]+$/", $name)) {
-    //                 return back()->with('error', 'Invalid name format on row ' . ($index + 1));
-    //             }
-
-    //             // Retrieve class ID
-    //             $classeId = (int)trim($row[2]); // Assuming the third column contains class IDs
-    //             if (isset($classes[$classeId])) {
-    //                 $classeNames[] = $classes[$classeId]; // Collect valid class names
-    //             } else {
-    //                 Log::warning("Invalid class ID '{$classeId}' on row " . ($index + 1));
-    //                 return back()->with('error', 'Invalid class ID "' . $classeId . '" on row ' . ($index + 1));
-    //             }
-
-    //             // Retrieve subject ID
-    //             $subjectId = (int)trim($row[3]);
-    //             if (isset($subjects[$subjectId])) {
-    //                 $subjectNames[] = $subjects[$subjectId]; // Collect valid subject names
-    //             } else {
-    //                 Log::warning("Invalid subject ID '{$subjectId}' on row " . ($index + 1));
-    //                 return back()->with('error', 'Invalid subject ID "' . $subjectId . '" on row ' . ($index + 1));
-    //             }
-
-    //             // Assuming marks and evaluation are in the correct columns
-    //             $marks = $row[5];
-    //             $evaluation = $row[4];
-
-    //             // Validate marks
-    //             if (!is_numeric($marks) || $marks < 0 || $marks > 100) {
-    //                 return back()->with('error', 'Invalid mark format on row ' . ($index + 1));
-    //             }
-
-    //             // Determine appreciation
-    //             $appreciation = $this->determineAppreciation($marks);
-
-    //             // Store the mark using the student ID directly from the file
-    //             Mark::updateOrCreate(
-    //                 [
-    //                     'student_id' => Student::where('matricule', $row[0])->first()->id ?? null,
-    //                     'subject_id' => $subjectId,
-    //                     'classe_id' => $classeId,
-    //                     'sequence' => $evaluation,
-    //                 ],
-    //                 [
-    //                     'mark' => $marks,
-    //                     'appreciation' => $appreciation,
-    //                 ]
-    //             );
-    //         }
-
-    //         // Create success message with class names, subject names, and evaluation
-    //         $uniqueClasseNames = implode(', ', array_unique($classeNames));
-    //         $uniqueSubjectNames = implode(', ', array_unique($subjectNames));
-    //         $successMessage = "Marks for $uniqueClasseNames, have been imported and saved successfully in $uniqueSubjectNames, for Evaluation $evaluation.";
-
-    //         return redirect()->route('marks.index')->with('success', $successMessage);
-    //     } catch (\Exception $e) {
-    //         return back()->with('error', 'Error importing file: ' . $e->getMessage());
-    //     }
-    // }
-
-    // public function store_import(Request $request)
-    // {
-    //     // Validate the request for file upload and additional parameters
-    //     $request->validate([
-    //         'file' => 'required|file|mimes:xlsx,xls,csv',
-    //         'classe_id' => 'required|exists:classes,id', // Ensure class ID exists
-    //         'subject_id' => 'required|exists:subjects,id', // Ensure subject ID exists
-    //         'sequence' => 'required|in:1,2,3,4,5,6', // Ensure sequence is valid
-    //     ]);
-
-    //     try {
-    //         // Load the Excel file
-    //         $file = $request->file('file');
-    //         $data = Excel::toArray(new MarksImport, $file);
-
-    //         // Fetch the class and subject IDs from the request
-    //         $classeId = $request->classe_id;
-    //         $subjectId = $request->subject_id;
-    //         $sequence = $request->sequence;
-
-    //         // Initialize variables for success message
-    //         $classeName = Classe::find($classeId)->name; // Get class name
-    //         $subjectName = Subject::find($subjectId)->name; // Get subject name
-
-    //         // Process the data starting from the second row
-    //         foreach ($data[0] as $index => $row) {
-    //             if ($index === 0) {
-    //                 continue; // Skip the header row
-    //             }
-
-    //             // Validate name
-    //             $name = trim($row[1]);
-    //             if (empty($name) || !preg_match("/^[a-zA-Z\s]+$/", $name)) {
-    //                 return back()->with('error', 'Invalid name format on row ' . ($index + 1));
-    //             }
-
-    //             // Retrieve marks from the appropriate column
-    //             $marks = $row[2]; // Adjust this index based on your Excel structure
-
-    //             // Validate marks
-    //             if (!is_numeric($marks) || $marks < 0 || $marks > 100) {
-    //                 return back()->with('error', 'Invalid mark format on row ' . ($index + 1));
-    //             }
-
-    //             // Determine appreciation
-    //             $appreciation = $this->determineAppreciation($marks);
-
-    //             // Store the mark using the student ID directly from the file
-    //             $studentId = Student::where('matricule', $row[0])->first()->id ?? null; // Assuming first column has matricule
-
-    //             // Check if the student ID exists
-    //             if (!$studentId) {
-    //                 return back()->with('error', 'Student with matricule "' . $row[0] . '" not found on row ' . ($index + 1));
-    //             }
-
-    //             Mark::updateOrCreate(
-    //                 [
-    //                     'student_id' => $studentId,
-    //                     'subject_id' => $subjectId,
-    //                     'classe_id' => $classeId,
-    //                     'sequence' => $sequence,
-    //                 ],
-    //                 [
-    //                     'mark' => $marks,
-    //                     'appreciation' => $appreciation,
-    //                 ]
-    //             );
-    //         }
-
-    //         // Create success message
-    //         $successMessage = "Marks for class '$classeName' have been imported and saved successfully in subject '$subjectName' for Evaluation $sequence.";
-
-    //         return redirect()->route('marks.index')->with('success', $successMessage);
-    //     } catch (\Exception $e) {
-    //         return back()->with('error', 'Error importing file: ' . $e->getMessage());
-    //     }
-    // }
     public function store_import(Request $request)
     {
         // Validate the request for file upload and additional parameters
@@ -545,9 +374,12 @@ class MarkController extends Controller
                     continue; // Skip the header row
                 }
 
-                // Validate name
-                $name = trim($row[1]);
-                if (empty($name) || !preg_match("/^[a-zA-Z\s]+$/", $name)) {
+                // Sanitize name field (trim and remove multiple spaces)
+                $name = trim(preg_replace('/\s+/', ' ', $row[1])); // Normalize spaces
+                $name = preg_replace('/\x{00A0}/u', ' ', $name); // Remove non-breaking spaces
+
+                // Validate name: allow letters, spaces, apostrophes, hyphens, periods, and commas
+                if (empty($name) || !preg_match("/^[\p{L}\s'\-,\.]+$/u", $name)) {
                     return back()->with('error', 'Invalid name format on row ' . ($index + 1));
                 }
 
@@ -559,12 +391,12 @@ class MarkController extends Controller
                 // Retrieve marks from the appropriate column
                 $marks = $row[2]; // Adjust this index based on your Excel structure
 
-                // Validate marks
+                // Validate marks: Ensure it's a numeric value within the valid range (0-100)
                 if (!is_numeric($marks) || $marks < 0 || $marks > 100) {
                     return back()->with('error', 'Invalid mark format on row ' . ($index + 1));
                 }
 
-                // Determine appreciation
+                // Determine appreciation based on the marks
                 $appreciation = $this->determineAppreciation($marks);
 
                 // Store the mark using the student ID directly from the file
@@ -575,6 +407,7 @@ class MarkController extends Controller
                     return back()->with('error', 'Student with matricule "' . $row[0] . '" not found on row ' . ($index + 1));
                 }
 
+                // Save or update the mark for the student
                 Mark::updateOrCreate(
                     [
                         'student_id' => $studentId,
@@ -590,9 +423,9 @@ class MarkController extends Controller
             }
 
             // Create success message
-            $successMessage = "Marks for class '$classeName' have been imported and saved successfully in subject '$subjectName' for Evaluation $sequence.";
+            $successMessage = "Marks in '$classeName' have been imported and saved successfully for '$subjectName' for Evaluation $sequence.";
 
-            return redirect()->route('marks.index')->with('success', $successMessage);
+            return redirect()->route('marks.create')->with('success', $successMessage);
         } catch (\Exception $e) {
             return back()->with('error', 'Error importing file: ' . $e->getMessage());
         }
@@ -763,50 +596,6 @@ class MarkController extends Controller
 
 
     // Master Sheet
-    // public function downloadMasterSheet(Request $request)
-    // {
-    //     $classId = $request->input('class_id');
-    //     $sequence = $request->input('sequence');
-
-    //     // Fetch class and its subjects
-    //     $class = Classe::with('subjects')->find($classId);
-
-    //     // Fetch students in the selected class with their marks
-    //     $students = Student::where('classe_id', $classId)->get();
-
-    //     // Prepare marks for each student
-    //     foreach ($students as $student) {
-    //         // Fetch marks for the selected sequence
-    //         $marks = $student->marks()->where('sequence', $sequence)->get();
-
-    //         // Create an associative array for marks, with subject IDs as keys
-    //         $marksArray = [];
-    //         foreach ($marks as $mark) {
-    //             $marksArray[$mark->subject_id] = $mark->mark;
-    //         }
-
-    //         // Add marks for all subjects, defaulting to 0 where no mark exists
-    //         foreach ($class->subjects as $subject) {
-    //             if (!isset($marksArray[$subject->id])) {
-    //                 $marksArray[$subject->id] = 0; // Default to 0 if no mark exists
-    //             }
-    //         }
-
-    //         // Store the marks array back into the student object
-    //         $student->marksArray = $marksArray; // Add the marks array to the student object
-    //     }
-
-    //     // Generate the PDF
-    //     $pdf = PDF::loadView('pdf.master-sheet', [
-    //         'students' => $students,
-    //         'class' => $class,
-    //         'sequence' => $sequence,
-    //     ])->setPaper('A4', 'landscape');
-
-    //     // Stream the PDF
-    //     return $pdf->stream('master_sheet_class_' . $classId . '_sequence_' . $sequence . '.pdf');
-    // }
-
     public function downloadMasterSheet(Request $request)
     {
         $classId = $request->input('class_id');
@@ -817,7 +606,7 @@ class MarkController extends Controller
         $class = Classe::with('subjects')->find($classId);
 
         // Fetch students in the selected class with their marks
-        $students = Student::where('classe_id', $classId)->get();
+        $students = Student::where('classe_id', $classId)->orderBy('first_name')->get();
 
         // Initialize counters
         $numberPassed = 0;
@@ -861,6 +650,12 @@ class MarkController extends Controller
             }
         }
 
+        // Calculate rank based on the average
+        $this->calculateRank($students);
+
+        // Calculate the class average
+        $classAverage = $this->calculateClassAverage($students);
+
         // Generate the PDF
         $pdf = PDF::loadView('pdf.master-sheet', [
             'students' => $students,
@@ -870,11 +665,60 @@ class MarkController extends Controller
             'numberPassed' => $numberPassed,
             'numberAbsent' => $numberAbsent,
             'numberFailed' => $numberFailed,
+            'classAverage' => $classAverage, // Pass the class average to the view
         ])->setPaper('A4', 'landscape');
 
         // Stream the PDF
         return $pdf->stream('MASTER SHEET ' . $class->name . '_EVALUATION_' . $sequence . '.pdf');
     }
+
+
+    private function calculateRank($students)
+    {
+        // Sort students by their average in descending order
+        $students = $students->sortByDesc('average');
+
+        // Assign ranks based on sorted averages
+        $rank = 1;
+        foreach ($students as $index => $student) {
+            // If the current student's average is the same as the previous student's, they share the same rank
+            if ($index > 0 && $student->average == $students[$index - 1]->average) {
+                $student->rank = $students[$index - 1]->rank; // Same rank as the previous student
+            } else {
+                // Determine suffix for the rank
+                $suffix = $this->getRankSuffix($rank);
+                $student->rank = $rank.' ' .$suffix; // Assign the rank with suffix
+            }
+
+            // Increment rank for the next student
+            $rank++;
+        }
+    }
+
+    // Helper function to get the suffix for the rank
+    private function getRankSuffix($rank)
+    {
+        // Get last two digits to handle exceptions like 11th, 12th, 13th
+        $lastDigit = $rank % 10;
+        $lastTwoDigits = $rank % 100;
+
+        if ($lastTwoDigits >= 11 && $lastTwoDigits <= 13) {
+            return 'th'; // Special cases for 11th, 12th, 13th
+        }
+
+        // Determine suffix based on last digit
+        switch ($lastDigit) {
+            case 1:
+                return 'st';
+            case 2:
+                return 'nd';
+            case 3:
+                return 'rd';
+            default:
+                return 'th';
+        }
+    }
+
 
     private function calculateTotal($marksArray, $subjects)
     {
@@ -904,11 +748,30 @@ class MarkController extends Controller
             }
         }
 
-        // dd($sumCoefficients);
-
         // Return the average or 0 if no valid marks
         return $count > 0 ? $total / $sumCoefficients : 0;
     }
+
+    private function calculateClassAverage($students)
+    {
+        // Initialize total to sum the student averages
+        $totalAverage = 0;
+
+        // Count the number of students
+        $totalStudents = count($students);
+
+        // Sum all the student averages
+        foreach ($students as $student) {
+            $totalAverage += $student->average;  // Assuming `average` property exists on the student model
+        }
+
+        // Calculate the class average
+        $classAverage = $totalStudents > 0 ? $totalAverage / $totalStudents : 0;
+
+        return $classAverage;
+    }
+
+
 
 
 

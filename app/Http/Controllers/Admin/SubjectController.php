@@ -86,6 +86,17 @@ class SubjectController extends Controller
         return redirect()->back()->with('success', 'Subject updated successfully.');
     }
 
+    public function destroy(string $id)
+    {
+        $subject = Subject::findOrFail($id);
+        if ($subject) {
+           $subject->delete();
+        }
+
+        // Redirect to subjects index with a success message
+        return redirect()->back()->with('success', 'Subject deleted successfully.');
+    }
+
 
 
 }

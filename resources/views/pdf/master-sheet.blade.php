@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -182,8 +181,8 @@
 
         <!-- Report Title -->
         <h2>
-            COLLEGE BILINGUE "LES PAPANETTES" <br>
-            <small style="font-style: italic"><small>BILINGUAL COLLEGE "LES PAPANETTES"</small></small>
+            COMPLEXE SCOLAIRE BILINGUE "LES PAPANETTES" <br>
+            <small style="font-style: italic"><small>BILINGUAL COMPLEX COLLEGE "LES PAPANETTES"</small></small>
         </h2>
         <h3 style="margin: 0">
             Année scolaire: 2023/2024 <br>
@@ -203,17 +202,20 @@
                         <th rowspan="2" style="text-align: center;">INFORMATIONS <br> DE LA CLASSE</th>
                         <td style="padding: 0; text-align:center; font-weight:bold">EVALUATION: &nbsp;
                             {{ $sequence }}</td>
-                        <td style="padding: 0; text-align:center; font-weight:bold">EFFECTIF: {{ $class->students ? $class->students->count() : '' }}</td>
+                        <td style="padding: 0; text-align:center; font-weight:bold">EFFECTIF:
+                            {{ $class->students ? $class->students->count() : '' }}</td>
                         <td style="padding: 0; text-align:center; font-weight:bold">
-                            {{-- <h4>PROFESSEUR PRINCIPAL: &nbsp;
-                                {{ strtoupper($class->classe_master ? $class->classe_master : '') }} --}}
+                            MOYENNE DE CLASSE: {{ number_format($classAverage, 2) }}
                         </td>
                     </tr>
 
                     <tr>
-                        <td style="text-align:center; padding: 0; font-weight:bold">REUSSITE: &nbsp; {{ $numberPassed }}</td>
-                        <td style="text-align:center; padding: 0; font-weight:bold">ECHEC: &nbsp; {{ $numberFailed }}</td>
-                        <td style="text-align:center; padding: 0; font-weight:bold">ABSENT: &nbsp; {{ $numberAbsent }}</td>
+                        <td style="text-align:center; padding: 0; font-weight:bold">REUSSITE: &nbsp; {{ $numberPassed }}
+                        </td>
+                        <td style="text-align:center; padding: 0; font-weight:bold">ECHEC: &nbsp; {{ $numberFailed }}
+                        </td>
+                        <td style="text-align:center; padding: 0; font-weight:bold">ABSENT: &nbsp; {{ $numberAbsent }}
+                        </td>
                     </tr>
 
                     <tr>
@@ -241,18 +243,26 @@
                         @endforeach
                         <th style="text-align: center">Total</th>
                         <th style="text-align: center">Average</th>
+                        <th style="text-align: center">Rank</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($students as $student)
                         <tr>
-                            <td style="text-align: left; padding-left:10px">{{ strtoupper($student->first_name) }} {{ strtoupper($student->last_name) }}</td>
+                            <td style="text-align: left; padding-left:10px">{{ strtoupper($student->first_name) }}
+                                {{ strtoupper($student->last_name) }}</td>
                             <td style="text-align: center">{{ $student->sex == 'male' ? 'M' : 'F' }}</td>
                             @foreach ($class->subjects as $subject)
-                                <td style="text-align: center">{{ $student->marksArray[$subject->id] ?? 0 }}</td>
+                                <td style="text-align: center">
+                                    {{ $student->marksArray[$subject->id] ? $student->marksArray[$subject->id] : '-' }}
+                                </td>
                             @endforeach
                             <td style="text-align: center">{{ $student->total }}</td>
-                            <td style="text-align: center">{{ number_format($student->average, 2) }}</td>
+                            <td style="text-align: center; color: {{ $student->average < 10 ? 'red' : 'green' }}">
+                                {{ number_format($student->average, 2) }}
+                            </td>
+
+                            <td style="text-align: center">{{ $student->rank }}</td>
                         </tr>
                     @endforeach
                 </tbody>

@@ -9,16 +9,18 @@
         <div class="card">
             <div class="card-body">
                 <div class="row mb-4">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <h3 class="card-title">LIST OF STUDENTS IN {{ $class->name }}</h3>
 
                     </div>
-                    <div class="col-md-6 text-end">
-
+                    <div class="col-md-7 text-end">
                             <a target="_blank" href="{{ route('students.id', $class->id) }}"class="btn btn-success"><i
                                     class="mdi mdi-file-document-box"></i>Download School IDs</a>
                         <a class="btn btn-primary" target="_blank" href="{{ route('students.download', $class->id) }}">
                             <i class="mdi mdi-download"></i> Download Class List
+                        </a>
+                        <a class="btn btn-secondary" href="{{ route('class.students.export', $class->id) }}">
+                            <i class="fas fa-file-export"></i> Export Class List
                         </a>
                     </div>
                 </div>

@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/update/{id}/classes', [ClasseController::class, 'update'])->name('classes.update');
     Route::delete('/delete/{id}/classes', [ClasseController::class, 'destroy'])->name('classes.delete');
     Route::get('/students/{id}/classes', [ClasseController::class, 'viewStudents'])->name('class.students');
+    Route::get('export/students/{id}/classes', [ClasseController::class, 'exportStudents'])->name('class.students.export');
 
     // MANAGE CLASSE SUBJECTS
     Route::get('/subjects/{id}/classes', [ClasseController::class, 'viewSubjects'])->name('class.subjects');
@@ -44,7 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/store/subjects/{id}/classes', [SubjectController::class, 'store'])->name('subjects.store');
     Route::get('/edit/subjects/{id}/classes', [SubjectController::class, 'edit'])->name('subjects.edit');
     Route::post('/update/subjects/{id}/classes', [SubjectController::class, 'update'])->name('subjects.update');
-    Route::delete('/delete/subjects/{id}/subjects', [SubjectController::class, 'destroy'])->name('subjects.delete');
+    Route::get('/delete/subjects/{id}/subjects', [SubjectController::class, 'destroy'])->name('subjects.delete');
 
     // Assign Classe subject
     Route::get('/classe_subject/classes', [ClasseController::class, 'classe_subject'])->name('classe.subject');
