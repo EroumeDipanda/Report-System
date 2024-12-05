@@ -315,11 +315,13 @@
                                             </div>
                                             <div class="col-md-7 text-end">
                                                 <div id="action-buttons" class="d-inline-flex">
-                                                    <a href="{{ route('marks.export', ['classe_id' => request('classe_id'), 'subject_id' => request('subject_id'), 'sequence' => request('sequence')]) }}" class="btn btn-success p-2 me-2">
+                                                    <a href="{{ route('marks.export', ['classe_id' => request('classe_id'), 'subject_id' => request('subject_id'), 'sequence' => request('sequence')]) }}"
+                                                        class="btn btn-success p-2 me-2">
                                                         <i class="fas fa-file-export"></i> Export Marks
                                                     </a>
 
-                                                    <a href="{{ route('marks.import', ['classe_id' => request('classe_id'), 'subject_id' => request('subject_id'), 'sequence' => request('sequence')]) }}" class="btn btn-info p-2">
+                                                    <a href="{{ route('marks.import', ['classe_id' => request('classe_id'), 'subject_id' => request('subject_id'), 'sequence' => request('sequence')]) }}"
+                                                        class="btn btn-info p-2">
                                                         <i class="fas fa-file-import"></i> Import Marks
                                                     </a>
                                                 </div>
@@ -345,7 +347,7 @@
                                                                 <input type="tel" name="mark[{{ $student->id }}]"
                                                                     class="form-control" style="width: 100px;"
                                                                     placeholder="Enter mark"
-                                                                    value="{{ $student->getMarkForSubject(request('subject_id')) }}"
+                                                                    value="{{ $student->getMarkForSubject(request('subject_id'), request('sequence')) }}"
                                                                     required>
                                                             </td>
                                                         </tr>

@@ -63,6 +63,7 @@ class MarkController extends Controller
             // Check if marks exist for this subject and class
             $mark = Mark::where('subject_id', $subject->id)
                          ->where('classe_id', $classeId)
+                        //  ->where('sequence', $request->sequence)
                          ->when($request->filled('sequence'), function ($query) use ($request) {
                              return $query->where('sequence', $request->sequence);
                          })

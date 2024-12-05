@@ -64,6 +64,8 @@ class ReportController extends Controller
         // Step 8: Get minimum and maximum term averages
         $minMaxTermAverages = $this->getMinMaxTermAverages($studentsData['studentsData']);
 
+        $minMaxSubjectAverages = $this->getMinMaxSubjectAverages($studentsData['studentsData']);
+
         // Step 9: Generate and save the PDF report
         $pdfPath = $this->generatePdfReport(
             $classe,
@@ -77,7 +79,8 @@ class ReportController extends Controller
             $passedStudentsCount,
             $percentagePassed,
             $minMaxTermAverages['min'],  // Minimum term average
-            $minMaxTermAverages['max']   // Maximum term average
+            $minMaxTermAverages['max'],   // Maximum term average
+            $minMaxSubjectAverages,  // Minimum subject average
         );
 
         // Step 10: Save the report card path to the database
@@ -179,9 +182,9 @@ class ReportController extends Controller
             } else {
                 // Still store subject data with default values
                 $marksData[$subject->id] = [
-                    'eval1' => 0,
-                    'eval2' => 0,
-                    'average' => 0,
+                    'eval1' => '-',
+                    'eval2' => '-',
+                    'average' => '-',
                     'weightedMark' => 0,
                     'grade' => 'U', // Fail or default grade
                     'appreciation' => 'Absent', // Default appreciation
@@ -239,6 +242,7 @@ class ReportController extends Controller
         ];
     }
 
+
     private function calculateSubjectAverage(Student $student, $subject, $sequences)
     {
         $eval1 = $this->getEvalMarks($student, $subject, $sequences, 0);
@@ -251,6 +255,45 @@ class ReportController extends Controller
 
         return 0;
     }
+
+    private function getMinMaxSubjectAverages(array $studentsData): array
+    {
+        $subjectAverages = [];
+
+        // Loop through all students
+        foreach ($studentsData as $studentData) {
+            // Loop through each subject of the student
+            foreach ($studentData['marksData'] as $subjectId => $marks) {
+                // Only consider subjects with a valid average (non '-' values)
+                if ($marks['average'] !== '-') {
+                    // Store the average for each subject per student
+                    $subjectAverages[$subjectId][] = $marks['average'];
+                }
+            }
+        }
+
+        // Now calculate the min and max subject averages for each subject
+        $minMaxValues = [];
+        foreach ($subjectAverages as $subjectId => $averages) {
+            // Calculate the min and max averages for each subject across all students
+            $minMaxValues[$subjectId] = [
+                'min' => min($averages),  // Minimum average for the subject
+                'max' => max($averages),  // Maximum average for the subject
+            ];
+        }
+
+        // If no subject averages are found, return default min/max values
+        if (empty($minMaxValues)) {
+            return [
+                'min' => 0,
+                'max' => 0,
+            ];
+        }
+
+        // Return the min and max values for each subject
+        return $minMaxValues;
+    }
+
 
     private function determineSubjectGrade(float $average): string
     {
@@ -328,6 +371,56 @@ class ReportController extends Controller
         return $totalStudents > 0 ? $totalTermAverages / $totalStudents : 0;
     }
 
+    // private function generatePdfReport(
+    //     $classe,
+    //     $subjects,
+    //     $studentsData,
+    //     $sequences,
+    //     $totalCoef,
+    //     $term,
+    //     $classAvg,
+    //     $termGrade,
+    //     $passedStudentsCount,
+    //     $percentagePassed,
+    //     $minTermAverage,
+    //     $maxTermAverage
+    // )
+    // {
+    //     $pdf = Pdf::loadView('pdf.report-cards', [
+    //         'leftLogoPath' => public_path('assets/images/logo.jpg'),
+    //         'profile' => public_path('assets/images/images.jpeg'),
+    //         'classe' => $classe,
+    //         'subjects' => $subjects,
+    //         'studentsData' => $studentsData['studentsData'],
+    //         'sequences' => $sequences,
+    //         'term' => $term,
+    //         'classAvg' => $classAvg,
+    //         'totalMarks' => $studentsData['totalMarks'],
+    //         'totalCoef' => $totalCoef,
+    //         'termGrade' => $termGrade,
+    //         'numberPassed' => $passedStudentsCount,
+    //         'percentagePassed' => $percentagePassed,
+    //         'minTermAverage' => $minTermAverage, // Minimum term average
+    //         'maxTermAverage' => $maxTermAverage  // Maximum term average
+    //     ])->setPaper('A4', 'portrait');
+
+    //     $pdfPath = 'report_cards/';
+    //     $pdfFilename = 'REPORT_CARDS_' . $classe->name . '_TERM_' . $term . '.pdf';
+    //     $pdfFullPath = storage_path('app/public/' . $pdfPath . $pdfFilename);
+
+    //     if (!file_exists(dirname($pdfFullPath))) {
+    //         mkdir(dirname($pdfFullPath), 0777, true);
+    //     }
+
+    //     try {
+    //         $pdf->save($pdfFullPath);
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', 'Failed to generate report cards: ' . $e->getMessage());
+    //     }
+
+    //     return $pdfPath . $pdfFilename;
+    // }
+
     private function generatePdfReport(
         $classe,
         $subjects,
@@ -340,9 +433,14 @@ class ReportController extends Controller
         $passedStudentsCount,
         $percentagePassed,
         $minTermAverage,
-        $maxTermAverage
+        $maxTermAverage,
+        $minMaxSubjectAverages // Add this
     )
+
     {
+        // Get the min and max averages for each subject
+        $minMaxSubjectAverages = $this->getMinMaxSubjectAverages($studentsData['studentsData']);
+
         $pdf = Pdf::loadView('pdf.report-cards', [
             'leftLogoPath' => public_path('assets/images/logo.jpg'),
             'profile' => public_path('assets/images/images.jpeg'),
@@ -358,7 +456,8 @@ class ReportController extends Controller
             'numberPassed' => $passedStudentsCount,
             'percentagePassed' => $percentagePassed,
             'minTermAverage' => $minTermAverage, // Minimum term average
-            'maxTermAverage' => $maxTermAverage  // Maximum term average
+            'maxTermAverage' => $maxTermAverage,  // Maximum term average
+            'minMaxSubjectAverages' => $minMaxSubjectAverages  // Min and Max subject averages
         ])->setPaper('A4', 'portrait');
 
         $pdfPath = 'report_cards/';
@@ -377,6 +476,7 @@ class ReportController extends Controller
 
         return $pdfPath . $pdfFilename;
     }
+
 
     private function saveReportCardPath(int $classeId, int $term, string $pdfPath)
     {

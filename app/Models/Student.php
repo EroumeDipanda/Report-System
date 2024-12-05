@@ -23,8 +23,18 @@ class Student extends Model
         return $this->hasMany(Mark::class);
     }
 
-    public function getMarkForSubject($subjectId)
+    public function getMarkForSubject($subjectId, $sequence)
     {
-        return $this->marks->firstWhere('subject_id', $subjectId)->mark ?? 0;
+        // Find all mark records for the given subject_id
+        $markRecord = $this->marks->where('subject_id', $subjectId)->where('sequence', $sequence)->first();
+
+        // Check if the mark record is found for the given subject and sequence
+        if ($markRecord) {
+            return $markRecord->mark ?? 0;  // Return the mark, default to 0 if it's not set
+        }
+
+        // If no mark record is found, return 0 or another default value
+        return 0;  
     }
+
 }

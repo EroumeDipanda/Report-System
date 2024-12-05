@@ -210,30 +210,34 @@
                                 <img src="{{ public_path('storage/' . $student->photo) }}" alt="Student Photo"
                                     style="height: 90px; width: 90px; object-fit: cover;">
                             @else
-                            <img src="{{ $profile }}" alt="Default Photo"
-                            style="height: 80px; width: 80px; object-fit: contain;">
-
+                                <img src="{{ $profile }}" alt="Default Photo"
+                                    style="height: 80px; width: 80px; object-fit: contain;">
                             @endif
                         </td>
-                        <td colspan="2"><strong>STUDENT NAME: </strong>&nbsp;{{ strtoupper($student->first_name) }} {{ strtoupper($student->last_name) }}</td>
+                        <td colspan="2"><strong>STUDENT NAME: </strong>&nbsp;{{ strtoupper($student->first_name) }}
+                            {{ strtoupper($student->last_name) }}</td>
                         <td><strong>CLASSE: </strong>&nbsp;&nbsp;{{ $classe->name }}</td>
-                        <td><strong>ENROLLMENT: </strong>&nbsp; {{ $classe->students ? $classe->students->count() : 'NULL'  }}</td>
+                        <td><strong>ENROLLMENT: </strong>&nbsp;
+                            {{ $classe->students ? $classe->students->count() : 'NULL' }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2"><strong>DATE OF BIRTH:</strong>&nbsp;{{ $student->date_of_birth }}</td>
+                        <td colspan="2"><strong>DATE OF BIRTH:</strong>&nbsp;{{ \Carbon\Carbon::parse($student->date_of_birth)->format('d/m/Y') }}</td>
                         <td><strong>PLACE OF BIRTH:</strong>&nbsp; {{ strtoupper($student->place_of_birth) }}</td>
-                        <td><strong>GENDER:  &nbsp;</strong>&nbsp;{{ $student->sex == 'male' ? 'M' : 'F' }}</td>
+                        <td><strong>GENDER: &nbsp;</strong>&nbsp;{{ strtoupper($student->sex) ??  ''}}</td>
                     </tr>
                     <tr>
-                        <td colspan="2"><strong>MATRICULE:  &nbsp;</strong>&nbsp;{{ strtoupper($student->matricule) }}</td>
-                        <td colspan="2"><strong>PROFESSEUR PRINCIPAL:&nbsp;</strong>&nbsp;{{ $classe->classe_master ? strtoupper($classe->classe_master) : 'N/A' }}</td>
+                        <td colspan="2"><strong>MATRICULE:
+                                &nbsp;</strong>&nbsp;{{ strtoupper($student->matricule) }}</td>
+                        <td colspan="2"><strong>PROFESSEUR
+                                PRINCIPAL:&nbsp;</strong>&nbsp;{{ $classe->classe_master ? strtoupper($classe->classe_master) : 'N/A' }}
+                        </td>
                     </tr>
                 </table>
             </div>
             &nbsp;
             <!-- Marks Table -->
-            <div class="info-section" style="font-size: 11px; margin-bottom: 5px">
-                <table class="subject-table" style="font-size: 11px">
+            <div class="info-section" style="font-size: 10px; margin-bottom: 5px">
+                <table class="subject-table" style="font-size: 10px !important;">
                     <thead>
                         <tr>
                             <th>MATIÈRES ET NOM DE L’ENSEIGNANT</th>
@@ -242,22 +246,24 @@
                             <th style="width: 50px">Coef</th>
                             <th style="width: 50px">M*coef</th>
                             <th style="width: 50px">COTE</th>
-                            <th>Appreciation</th>
+                            <th style="width: 50px">[Min - Max]</th>
+                            <th>Appreciation et <br> Visa de l'Enseignat</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($subjects as $subject)
                             @php
                                 $marks = $marksData[$subject->id] ?? [
-                                    'eval1' => 0,
-                                    'eval2' => 0,
-                                    'average' => 0,
-                                    'weightedMark' => 0,
-                                    'grade' => '',
-                                    'appreciation' => ''
+                                    'eval1' => '-',
+                                    'eval2' => '-',
+                                    'average' => '-',
+                                    'weightedMark' => '-',
+                                    'grade' => 'U',
+                                    'appreciation' => 'Absent',
                                 ];
-                                $weightedMark = $marks['average'] * $subject->coef;
+                                $weightedMark = $marks['average'] !== '-' ? $marks['average'] * $subject->coef : '-';
                             @endphp
+
                             <tr>
                                 <td>{{ $subject->name }}
                                     <br><small>{{ $subject->teacher ?? '' }}</small>
@@ -266,8 +272,18 @@
                                 <td style="text-align: center;">{{ $marks['eval2'] }}</td>
                                 <td style="text-align: center;">{{ $marks['average'] }}</td>
                                 <td style="text-align: center;">{{ $subject->coef }}</td>
-                                <td style="text-align: center;">{{ number_format($weightedMark, 2) }}</td>
+                                <td style="text-align: center;">
+                                    {{ is_numeric($weightedMark) ? number_format($weightedMark, 2) : '-' }}</td>
                                 <td style="text-align: center;">{{ $marks['grade'] }}</td>
+                                <td style="text-align: center">
+
+                                    @if (isset($minMaxSubjectAverages[$subject->id]))
+                                        {{ number_format($minMaxSubjectAverages[$subject->id]['min'], 1) }} -
+                                        {{ number_format($minMaxSubjectAverages[$subject->id]['max'], 1) }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                                 <td>{{ $marks['appreciation'] }}</td>
                             </tr>
                         @endforeach
@@ -279,7 +295,7 @@
                             <td style="text-align: center;">
                                 <strong>{{ number_format($totalWeightedMarks, 2) }}</strong>
                             </td>
-                            <td colspan="2" style="text-align: left;">
+                            <td colspan="3" style="text-align: center;">
                                 <strong>MOYENNE:</strong>
                                 <strong>{{ number_format($average, 2) }}</strong>
                             </td>
@@ -289,8 +305,8 @@
             </div>
 
             <!-- Additional Information Table -->
-            <div class="info-section" style="font-size: 11px">
-                <table class="subject-table" style="font-size: 11px;">
+            <div class="info-section" style="font-size: 10px">
+                <table class="subject-table" style="font-size: 10px !important;">
                     <thead>
                         <tr>
                             <th colspan="4" style="width: max-content;"><strong>DISCIPLINE</strong></th>
@@ -311,6 +327,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- Discipline --}}
                         <tr>
                             <td>Abs just. (h)</td>
                             <td></td>
@@ -318,11 +335,19 @@
                             <td></td>
                             <td style="width: 30px;">COEF</td>
                             <td style="text-align: center">{{ $totalCoef }}</td>
-                            <td style="width: 5px;">CTBA</td>
-                            <td></td>
+                            <td style="width: 5px;">C.T.B.A</td>
+                            <td style="text-align: center; font-weight: bold">
+                                <?php if ($average > 16 && $average <= 20) { ?>
+                                <img src="{{ public_path('assets/images/passe_logo.png') }}" alt="average logo"
+                                    style="height: 15px; width: 15px; object-fit: cover;">
+                                <?php } ?>
+                            </td>
                             <td>[Min – Max]</td>
-                            <td style="text-align: center">{{ number_format($minTermAverage, 2) }} - {{ number_format($maxTermAverage, 2) }}</td>
+                            <td style="text-align: center">
+                                {{ number_format($minTermAverage, 2) }} - {{ number_format($maxTermAverage, 2) }}
+                            </td>
                         </tr>
+
                         <tr>
                             <td>Retards</td>
                             <td></td>
@@ -332,23 +357,48 @@
                             <td style="text-align: center">
                                 <strong>{{ number_format($average, 2) }}</strong>
                             </td>
-                            <td style="width: 5px;">CA</td>
-                            <td></td>
+                            <td style="width: 5px;">C.A</td>
+                            <td style="text-align: center; font-weight: bold">
+                                <?php if ($average >= 12 && $average <= 16) { ?>
+                                <img src="{{ public_path('assets/images/passe_logo.png') }}" alt="average logo"
+                                    style="height: 15px; width: 15px; object-fit: cover;">
+                                <?php } ?>
+                            </td>
+
                             <td>Nombre de moyennes</td>
                             <td style="text-align: center">{{ $numberPassed }}</td>
                         </tr>
                         <tr>
-                            <td>Consignes (heures)</td>
-                            <td></td>
-                            <td>Exclusion définitive</td>
-                            <td></td>
-                            <td style="width: 30px;">COTE</td>
-                            <td style="text-align: center; font-weight:bold">{{ $termGrade }}</td>
-                            <td style="width: 5px;">CNA</td>
-                            <td></td>
-                            <td>Taux de réussite</td>
-                            <td style="text-align: center">{{ number_format($percentagePassed, 2) }} %</td>
+                            <td rowspan="2">Consignes (heures)</td>
+                            <td rowspan="2"></td>
+                            <td rowspan="2">Exclusion définitive</td>
+                            <td rowspan="2"></td>
+                            <td rowspan="2" style="width: 30px;">COTE</td>
+                            <td rowspan="2" style="text-align: center; font-weight: bold">{{ $termGrade }}</td>
+                            <td style="width: 5px;">C.M.A</td>
+                            <td style="text-align: center; font-weight: bold">
+                                <?php if ($average >= 9 && $average <= 11) { ?>
+                                <img src="{{ public_path('assets/images/average_logo.png') }}" alt="average logo"
+                                    style="height: 15px; width: 15px; object-fit: cover;">
+                                <?php } ?>
+                            </td>
+                            <td rowspan="2">Taux de réussite</td>
+                            <td rowspan="2" style="text-align: center">{{ number_format($percentagePassed, 2) }} %
+                            </td>
                         </tr>
+
+                        {{-- Empty Row with the same columns --}}
+                        <tr>
+                            <td style="width: 5px;">C.N.A</td>
+                            <td style="text-align: center; font-weight: bold">
+                                <?php if ($average < 9) { ?>
+                                <img src="{{ public_path('assets/images/fail_logo.png') }}" alt="fail logo"
+                                    style="height: 15px; width: 15px; object-fit: cover;">
+                                <?php } ?>
+                            </td>
+
+                        </tr>
+
                         <tr style="height: 100px">
                             <td colspan="4" style="text-align: center;"><strong>Appréciation du travail de l’élève
                                     (points forts et points à améliorer)</strong> <br><br><br><br></td>
@@ -360,13 +410,15 @@
                                     d’établissement</strong><br><br><br><br></td>
                         </tr>
                     </tbody>
+
                 </table>
             </div>
 
             <!-- Footer -->
             <footer class="footer">
                 <hr>
-                <p>BILINGUAL COLLEGE "LES PAPANETTES" | Address: [School Address] | Phone: 673 156 416 / 687 694 598 / 695 382 661</p>
+                <p>BILINGUAL COLLEGE "LES PAPANETTES" | Address: [School Address] | Phone: 673 156 416 / 687 694 598 /
+                    695 382 661</p>
             </footer>
 
             <div class="page-break"></div>
